@@ -228,8 +228,6 @@ require(['backbone', 'jquery', 'avgrund'], function(Backbone, jquery) {
 						})
 					});
 
-					console.log(bulkArray);
-
 					$(".avgrund-popup h2").text("Bulk Remove Called!");
 					$(".avgrund-popup p").text("This should only take a moment.");
 					$(".avgrund-popup button").hide();
@@ -420,7 +418,7 @@ require(['backbone', 'jquery', 'avgrund'], function(Backbone, jquery) {
 			"watch" : true
 		});
 
-		view_collection.design = 'views101';
+		view_collection.design = 'app';
 		view_collection.view = 'view_username';
 		view_collection.cloudant_options = {
 			"reduce" : false,
