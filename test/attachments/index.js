@@ -38,6 +38,8 @@ require(['backbone', 'jquery', 'avgrund'], function(Backbone, jquery) {
 	var view_collection = {};
 	var view_canvas = {};
 	var currentNum = 0;
+	
+	// MAIN CANVAS VIEW
 	var TrailView = Backbone.View.extend({
 
 		el : $("body"),
@@ -55,7 +57,6 @@ require(['backbone', 'jquery', 'avgrund'], function(Backbone, jquery) {
 		initialize : function(args) {
 			console.log("initialize");
 			this.render();
-			this.collection = args.collection;
 		},
 
 		render : function() {
@@ -144,14 +145,17 @@ require(['backbone', 'jquery', 'avgrund'], function(Backbone, jquery) {
 			var _this = this;
 
 			switch(event.keyCode) {
+				
+				case 82:
+					// R : Record
 
+					isRecording = true;
+					break;
+	
 				case 83:
 					// S : Save
 
 					isRecording = false;
-
-					clearInterval(setInt);
-					setInt = setInterval(_.bind(_this.loop, _this), 1000 / 60);
 
 					$(".avgrund-popup h2").text("Bulk Save Called!");
 					$(".avgrund-popup p").text("This should only take a moment.");
@@ -181,39 +185,14 @@ require(['backbone', 'jquery', 'avgrund'], function(Backbone, jquery) {
 							$(".avgrund-popup button").show();
 						}
 					});
-
 					break;
 
 				case 67:
 					// C : Call Load Data
 
 					createCollection(_this);
-
 					break;
-				case 82:
-					// R : Record
-
-					isRecording = true;
-
-					break;
-				case 69:
-					// E: Replay
-
-					drawingItemNum = 0;
-					drawingArrayLen = drawingArray.length;
-
-					if (drawingArrayLen > 0) {
-						clearInterval(setInt);
-						setInt = setInterval(_.bind(_this.drawIt, _this), 1000 / 60);
-					} else {
-						// Throw alert
-						$(".avgrund-popup h2").text("Rut Ro...");
-						$(".avgrund-popup p").text("You currently have no data fool. Record a drawing or load the data from the database.");
-						$(".avgrund-popup button").show();
-						openDialog();
-					}
-
-					break;
+					
 				case 68:
 					// D: Delete Data
 
@@ -260,9 +239,25 @@ require(['backbone', 'jquery', 'avgrund'], function(Backbone, jquery) {
 							$(".avgrund-popup button").show();
 						}
 					});
-
 					break;
+					
+				case 69:
+				// E: Replay
 
+				drawingItemNum = 0;
+				drawingArrayLen = drawingArray.length;
+
+				if (drawingArrayLen > 0) {
+					clearInterval(setInt);
+					setInt = setInterval(_.bind(_this.drawIt, _this), 1000 / 60);
+				} else {
+					// Throw alert
+					$(".avgrund-popup h2").text("Rut Ro...");
+					$(".avgrund-popup p").text("You currently have no data fool. Record a drawing or load the data from the database.");
+					$(".avgrund-popup button").show();
+					openDialog();
+				}
+				break;
 			}
 
 		},
@@ -395,7 +390,7 @@ require(['backbone', 'jquery', 'avgrund'], function(Backbone, jquery) {
 
 		}
 	});
-
+	
 	function createCollection(obj) {
 
 		$(".avgrund-popup h2").text("Load Data Called!");
@@ -424,19 +419,17 @@ require(['backbone', 'jquery', 'avgrund'], function(Backbone, jquery) {
 			"reduce" : false,
 			// "limit" : 10,
 			"ascending" : true,
-			//"key" : "\"xxi\"",
-			"value" : "\"xxi\"", // need to escape the "" marks so that the value for it to be read properly by the DB.
+			//"key" : '\"'+_username+'\"',
+			"value" : '\"'+_username+'\"', // need to escape the "" marks so that the value for it to be read properly by the DB.
 			"include_docs" : true
 		};
 
 		view_collection.fetch().success(function() {
 			console.log("fetch success ");
+			
+			console.log(view_collection.totalLength);
 
-			_this.collection = view_collection;
-
-			console.log(_this.collection.totalLength);
-
-			_.each(_this.collection.models, function(doc, key) {
+			_.each(view_collection.models, function(doc, key) {
 				drawingArray.push(doc.attributes.doc);
 			});
 
@@ -604,7 +597,7 @@ require(['backbone', 'jquery', 'avgrund'], function(Backbone, jquery) {
 	// Bit of a hack to load out non- require module code
 	require(['backbone.cloudant'], function() {
 		// set the DB path
-		Backbone.Cloudant.database = "https://ten-eleven.cloudant.com/cbbc_draw";
+		Backbone.Cloudant.database = "https://USERNAME.cloudant.com/DATABASE";
 		// create the view
 		createView();
 
